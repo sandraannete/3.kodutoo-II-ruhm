@@ -31,7 +31,7 @@
 <div class="container">
 	<?=$msg;?>
 
-	<p><a href="cars.php"> Cars </a></p>
+	<p><a href="series.php"> Series </a></p>
 	<a href="?logout=1"> Log out</a>
 
 

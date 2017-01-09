@@ -5,16 +5,6 @@ class Series{
             $this->connection = $mysqli;
 }
 
-function delete($id){
-   	$stmt = $this->connection->prepare("UPDATE series SET deleted=NOW() WHERE id=? AND deleted IS NULL");
-    $stmt->bind_param("i", $id);
-            // kas õnnestus salvestada
-            if ($stmt->execute()) {
-                echo "Deleted";
-            }
-            $stmt->close();
-        }
-
 function get($q, $sort, $direction){
             //mis sort ja j�rjekord
             $allowedSortOptions = ["id", "seriesname"];
@@ -31,28 +21,30 @@ function get($q, $sort, $direction){
             echo "Order: " . $orderBy ." ";
             if ($q == ""){
                 echo "ei otsi";
-
-
                 $stmt = $this->connection->prepare("
                     SELECT id, seriesname
                     FROM series
                     WHERE deleted IS NULL 
                     ORDER BY $sort $orderBy
                 ");
-
                 echo $this->connection->error;
-} else {
-	echo "Searches: " . $q;
-	$searchword = "%".$q."%";
-	$stmt = $this->connection->prepare("SELECT id, seriesname FROM series
-		WHERE deleted IS NULL AND (id LIKE ? OR seriesname LIKE?)ORDER BY $sort $orderBy");
-
+            } else {
+                echo "Searches: " . $q;
+              
+                $searchword = "%".$q."%";
+                $stmt = $this->connection->prepare("
+                    SELECT id, seriesname
+                    FROM series
+                    WHERE deleted IS NULL AND
+                    (id LIKE ? OR seriesname LIKE ?)
+                    ORDER BY $sort $orderBy
+                ");
                 $stmt->bind_param("ss", $searchword, $searchword);
             }
 
             echo $this->connection->error;
 
-            $stmt->bind_result($id, $seriesname);
+            $stmt->bind_result($id, $seriesName);
             $stmt->execute();
 
             //tekitan massiivi
@@ -73,7 +65,15 @@ function get($q, $sort, $direction){
             return $result;
         }
 
-
+function delete($id){
+   	$stmt = $this->connection->prepare("UPDATE series SET deleted=NOW() WHERE id=? AND deleted IS NULL");
+    $stmt->bind_param("i", $id);
+            // kas õnnestus salvestada
+            if ($stmt->execute()) {
+                echo "Deleted";
+            }
+            $stmt->close();
+        }
 
 function saveSeries ($seriesName) {
 		$stmt = $this->connection->prepare("INSERT INTO series(seriesname) VALUES (?)");

@@ -1,10 +1,9 @@
 <?php
 	require("../functions.php");
-	require("../class/Series.class.php");
-	$Series = new series($mysqli);
+	require("../class/series.class.php");
+	$Series = new Series($mysqli);
 	//MUUTUJAD
-	$Username = "";
-	$seriesName = "";
+	$seriesname = "";
 	//kui ei ole kasutaja id'd
 	if (!isset($_SESSION["userId"])){
 		//suunan sisselogimise lehele
@@ -20,35 +19,28 @@
 	$msg = "";
 	if(isset($_SESSION["message"])){
 		$msg = $_SESSION["message"];
+		
+		//kui ühe näitame siis kustuta ära, et pärast refreshi ei näitaks
 		unset($_SESSION["message"]);
 	}
-	if (isset($_POST["seriesName"]) &&
-		!empty ($_POST["seriesName"])) {
-			$seriesName = $Helper->cleanInput($_POST["seriesName"]);
-		}
 	
-$error= "";
-	if(isset($_POST["seriesName"]) &&
-		!empty($_POST["seriesName"])) {
-	$Series->save($Helper->cleanInput($_SESSION["userName"]), $Helper->cleanInput($_POST["seriesName"]));
-	}
-
+	
+	if ( isset($_POST["seriesname"]) && 
+		!empty($_POST["seriesname"])
+	  ) {
+		  
+		$Series->save($Helper->cleanInput($_POST["seriesname"]));
 		
-	elseif(isset($_POST["seriesName"]) &&
-			empty($_POST["seriesName"])) {
-			$error = "Täida kõik väljad";
-		}
-	echo $error;
+	}
 	
-		//sorteerib
+	// sorteerib
 	if(isset($_GET["sort"]) && isset($_GET["direction"])){
 		$sort = $_GET["sort"];
 		$direction = $_GET["direction"];
-	} else {
-		//kui ei ole määratud siis vaikimis id ja ASC
+	}else{
+		// kui ei ole määratud siis vaikimis id ja ASC
 		$sort = "id";
 		$direction = "ascending";
-		
 	}
 	
 	//kas otsib
@@ -63,6 +55,10 @@ $error= "";
 		$seriesData = $Series->get($q, $sort, $direction);
 	
 	}
+	
+	
+	
+	
 ?>
 
 <?php require("../header.php"); ?>
@@ -114,30 +110,49 @@ $error= "";
 
 	<?php
 		
-		$direction = "ascending";
-		if(isset($_GET["direction"])){
-			if ($_GET["direction"] == "ascending"){
-				$direction = "descending";
-			}
-		}
-		$html = "<table class='table table-striped table-bordered'>";
+$html = "<table class='table table-striped table-bordered'>";
+		
 		$html .= "<tr>";
-			$html .= "<th><a href=?q=".$q."&sort=id&direction=".$direction."'>id</a></th>";
-			$html .= "<th><a href='?q=".$q."&sort=seriesname&direction=".$direction."'>seriesnamee</a></th>";
+			$html .= "<th>
+						<a href='?q=".$q."&sort=id&direction=".$direction."'>
+							id
+						</a>
+					</th>";
+			$html .= "<th>
+						<a href='?q=".$q."&sort=seriesname&direction=".$direction."'>
+							seriesname
+						</a>
+					</th>";
 		$html .= "</tr>";
-		foreach($seriesData as $i){
+		
+		//iga liikme kohta massiivis
+		foreach($seroesData as $c){
+			// iga auto on $c
+			//echo $c->seriesname."<br>";
+			
 			$html .= "<tr>";
-				$html .= "<td>".$i->id."</td>";
-				$html .= "<td>".$i->seriesName."</td>";
-
+				$html .= "<td>".$c->id."</td>";
+				$html .= "<td>".$c->seriesname."</td>";
 				$html .= "<td>
-							<a href='edit.php?id=".$i->id."'>
-          					<span class=\"glyphicon glyphicon-cog\"></span>
-							</a></td>";
+							<a href='edit.php?id=".$c->id."' class='btn btn-default'>
+							
+								<span class='glyphicon glyphicon-pencil'></span>
+								Muuda
+								
+							</a>
+						</td>";
+				
 			$html .= "</tr>";
 		}
+		
 		$html .= "</table>";
+		
 		echo $html;
+		
+		
+		$listHtml = "<br><br>";
+		
+
 	?>
 </div>
 
